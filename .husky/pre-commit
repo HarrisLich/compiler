@@ -1,0 +1,2 @@
+echo "🧹 Linting staged files..."
+npx lint-staged --config "$(git rev-parse --show-toplevel)/package.json"

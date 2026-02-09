@@ -1,0 +1,80 @@
+{
+    // Visit https://aka.ms/tsconfig to read more about this file
+    "compilerOptions": {
+        // File Layout
+        "rootDir": "./src",
+        "outDir": "./dist",
+        // Environment Settings
+        // See also https://aka.ms/tsconfig/module
+        "moduleResolution": "node",
+        "module": "ESNext",
+        "typeRoots": [
+            "./node_modules/@types"
+        ],
+        "target": "ES2022",
+        "types": [
+            "node"
+        ],
+        // For nodejs:
+        "lib": [
+            "esnext",
+            "ES2022"
+        ],
+        "baseUrl": "src",
+        "paths": {
+            "@infra/*": [
+                "infra/*"
+            ],
+            "@core/*": [
+                "core/*"
+            ],
+            "@shared/*": [
+                "shared/*"
+            ],
+            "@modules/*": [
+                "modules/*"
+            ],
+            "@app/*": [
+                "app/*"
+            ]
+        },
+        // Other Outputs
+        "sourceMap": true,
+        "declaration": true,
+        "declarationMap": true,
+        // Stricter Typechecking Options
+        "noUncheckedIndexedAccess": true,
+        "exactOptionalPropertyTypes": true,
+        // Style Options
+        "noImplicitReturns": true,
+        "noImplicitOverride": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "noFallthroughCasesInSwitch": true,
+        "noPropertyAccessFromIndexSignature": false,
+        "forceConsistentCasingInFileNames": true,
+        "resolveJsonModule": true,
+        "esModuleInterop": true,
+        "allowSyntheticDefaultImports": true,
+        // Recommended Options
+        "strict": true,
+        // "jsx": "react-jsx",
+        "verbatimModuleSyntax": true,
+        "isolatedModules": true,
+        "noUncheckedSideEffectImports": true,
+        "moduleDetection": "force",
+        "skipLibCheck": true
+    },
+    "include": [
+        "src/**/*"
+    ],
+    "exclude": [
+        "node_modules",
+        "dist",
+        "coverage",
+        "build",
+        "**/*.test.ts",
+        "eslint.config.ts",
+        "jest.config.ts"
+    ]
+}
