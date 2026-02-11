@@ -1,3 +1,5 @@
+// TODO Lab 2 :: refactor to TokenSpecs which will include 3 properties: type, regex pattern, ignore ( for white spaces and block commens )
+
 export type TokenType =
   | "PRINT"
   | "WHILE"

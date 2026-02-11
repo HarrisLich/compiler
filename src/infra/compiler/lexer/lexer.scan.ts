@@ -9,6 +9,8 @@ import {
 import { number, string, identifier } from "./lexer.literals";
 import { isAlpha, isDigit } from "@shared/helpers/char";
 
+// TODO Lab 2 :: refactor to be regex based, instead of a large switch/case statement
+
 export function scanToken(state: LexerState): void {
   state.start = state.current;
   state.startColumn = state.column;
