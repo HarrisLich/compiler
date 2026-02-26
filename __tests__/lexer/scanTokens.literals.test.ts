@@ -45,4 +45,13 @@ describe("scanTokens (literals)", () => {
       literal: "a b c",
     });
   });
+
+  it("treats comment-like sequence inside string as part of the string literal", () => {
+    const tokens = scanTokens('"hello /* comment */ world"');
+    expect(tokens[0]).toMatchObject({
+      type: "STRING_LITERAL",
+      literal: "hello /* comment */ world",
+    });
+    expect(tokens).toHaveLength(2);
+  });
 });
