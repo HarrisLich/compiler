@@ -18,13 +18,16 @@ export function scanTokens(source: string): Token[] {
     scanToken(state);
   }
 
-  state.tokens.push({
-    type: "EOF",
-    lexeme: "",
-    literal: null,
-    line: state.line,
-    column: state.column,
-  });
+  const last = state.tokens[state.tokens.length - 1];
+  if (!last || last.type !== "EOF") {
+    state.tokens.push({
+      type: "EOF",
+      lexeme: "",
+      literal: null,
+      line: state.line,
+      column: state.column,
+    });
+  }
 
   return state.tokens;
 }
