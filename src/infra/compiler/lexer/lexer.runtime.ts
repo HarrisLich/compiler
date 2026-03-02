@@ -1,5 +1,5 @@
 import type { LexerState } from "./lexer.state";
-import type { TokenType } from "./tokens.types";
+import type { TokenType } from "@shared/types/tokens.types";
 
 export function isAtEnd(state: LexerState): boolean {
   return state.current >= state.source.length;

@@ -1,4 +1,4 @@
-import type { Token } from "./tokens.types";
+import type { Token } from "@shared/types/tokens.types";
 import type { LexerState } from "./lexer.state";
 import { isAtEnd } from "./lexer.runtime";
 import { scanToken } from "./lexer.scan";

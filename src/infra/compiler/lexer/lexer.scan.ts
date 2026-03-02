@@ -1,6 +1,6 @@
 import type { LexerState } from "./lexer.state";
-import type { TokenType } from "./tokens.types";
-import { TOKEN_SPECS } from "./tokens.types";
+import type { TokenType } from "@shared/types/tokens.types";
+import { TOKEN_SPECS } from "@shared/types/tokens.types";
 import { addToken, advanceBy, isAtEnd } from "./lexer.runtime";
 
 const CAPITAL_IN_STRING = /[A-Z]/;

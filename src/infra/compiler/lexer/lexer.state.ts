@@ -1,4 +1,4 @@
-import type { Token } from "./tokens.types";
+import type { Token } from "@shared/types/tokens.types";
 
 export interface LexerState {
   source: string;
