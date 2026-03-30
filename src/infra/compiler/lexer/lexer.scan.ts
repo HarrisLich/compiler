@@ -1,6 +1,5 @@
 import type { LexerState } from "./lexer.state";
-import type { TokenType } from "@shared/types/tokens.types";
-import { TOKEN_SPECS } from "@shared/types/tokens.types";
+import { TOKEN_SPECS, TokenType } from "@shared/types/tokens.types";
 import { addToken, advanceBy, isAtEnd } from "./lexer.runtime";
 
 const CAPITAL_IN_STRING = /[A-Z]/;
@@ -21,11 +20,11 @@ export function scanToken(state: LexerState): void {
 
       if (spec.ignore) return;
 
-      const type = spec.type as TokenType;
+      const type = spec.type;
       let literal: number | string | null = null;
-      if (type === "NUMBER") {
+      if (type === TokenType.NUMBER) {
         literal = parseInt(matched, 10);
-      } else if (type === "STRING_LITERAL" && match[1] !== undefined) {
+      } else if (type === TokenType.STRING_LITERAL && match[1] !== undefined) {
         const content = match[1];
         if (CAPITAL_IN_STRING.test(content)) {
           throw new Error(

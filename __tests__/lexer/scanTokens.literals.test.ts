@@ -1,21 +1,22 @@
 import { describe, it, expect } from "vitest";
 import { scanTokens } from "../../src/infra/compiler/lexer/lexer";
+import { TokenType } from "../../src/shared/types/tokens.types";
 
 describe("scanTokens (literals)", () => {
   it("tokenizes integer numbers", () => {
     const tokens = scanTokens("0 42 999");
     expect(tokens[0]).toMatchObject({
-      type: "NUMBER",
+      type: TokenType.NUMBER,
       lexeme: "0",
       literal: 0,
     });
     expect(tokens[1]).toMatchObject({
-      type: "NUMBER",
+      type: TokenType.NUMBER,
       lexeme: "42",
       literal: 42,
     });
     expect(tokens[2]).toMatchObject({
-      type: "NUMBER",
+      type: TokenType.NUMBER,
       lexeme: "999",
       literal: 999,
     });
@@ -24,7 +25,7 @@ describe("scanTokens (literals)", () => {
   it("tokenizes string literals", () => {
     const tokens = scanTokens('"hello"');
     expect(tokens[0]).toMatchObject({
-      type: "STRING_LITERAL",
+      type: TokenType.STRING_LITERAL,
       lexeme: '"hello"',
       literal: "hello",
     });
@@ -33,7 +34,7 @@ describe("scanTokens (literals)", () => {
   it("tokenizes empty string", () => {
     const tokens = scanTokens('""');
     expect(tokens[0]).toMatchObject({
-      type: "STRING_LITERAL",
+      type: TokenType.STRING_LITERAL,
       literal: "",
     });
   });
@@ -41,7 +42,7 @@ describe("scanTokens (literals)", () => {
   it("tokenizes string with spaces", () => {
     const tokens = scanTokens('"a b c"');
     expect(tokens[0]).toMatchObject({
-      type: "STRING_LITERAL",
+      type: TokenType.STRING_LITERAL,
       literal: "a b c",
     });
   });
@@ -49,7 +50,7 @@ describe("scanTokens (literals)", () => {
   it("treats comment-like sequence inside string as part of the string literal", () => {
     const tokens = scanTokens('"hello /* comment */ world"');
     expect(tokens[0]).toMatchObject({
-      type: "STRING_LITERAL",
+      type: TokenType.STRING_LITERAL,
       literal: "hello /* comment */ world",
     });
     expect(tokens).toHaveLength(2);

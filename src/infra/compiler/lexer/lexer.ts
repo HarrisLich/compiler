@@ -1,4 +1,5 @@
 import type { Token } from "@shared/types/tokens.types";
+import { TokenType } from "@shared/types/tokens.types";
 import type { LexerState } from "./lexer.state";
 import { isAtEnd } from "./lexer.runtime";
 import { scanToken } from "./lexer.scan";
@@ -19,9 +20,9 @@ export function scanTokens(source: string): Token[] {
   }
 
   const last = state.tokens[state.tokens.length - 1];
-  if (!last || last.type !== "EOF") {
+  if (!last || last.type !== TokenType.EOF) {
     state.tokens.push({
-      type: "EOF",
+      type: TokenType.EOF,
       lexeme: "",
       literal: null,
       line: state.line,
