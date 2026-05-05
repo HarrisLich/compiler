@@ -6,13 +6,14 @@ export const bootstrap = () => {
     logger.info('[core:bootstrap] Starting Compiler');
 
 
-    const source = 'print("hello world")$';
+    const source = '{ boolean r r = (3 == 3) if (r == true) { print("r is true") } }$';
     const tokens = scanTokens(source);
 
     for (const token of tokens) {
         logger.info(`[core:bootstrap] Token: ${token.type} ${token.lexeme} ${token.literal}`);
     }
 
-    const program = parse(tokens);
-    logger.info(`[core:bootstrap] Parsed program: ${JSON.stringify(program, null, 2)}`);
+    const result = parse(tokens);
+    logger.info(`[core:bootstrap] CST:\n${result.cstString}`);
+    logger.info(`[core:bootstrap] AST: ${JSON.stringify(result.ast, null, 2)}`);
 }

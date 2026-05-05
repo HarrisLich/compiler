@@ -18,14 +18,52 @@ export interface ParserError {
 
 export interface Program {
   kind: "Program";
-  body: Statement[];
+  body: BlockStatement;
 }
 
-export type Statement = PrintStatement | ExpressionStatement;
+export type Statement =
+  | PrintStatement
+  | AssignmentStatement
+  | VarDeclStatement
+  | WhileStatement
+  | IfStatement
+  | BlockStatement
+  | ExpressionStatement;
 
 export interface PrintStatement {
   kind: "PrintStatement";
   expression: Expression;
+}
+
+export interface AssignmentStatement {
+  kind: "AssignmentStatement";
+  name: Token;
+  value: Expression;
+}
+
+export type TypeName = "int" | "string" | "boolean";
+
+export interface VarDeclStatement {
+  kind: "VarDeclStatement";
+  typeName: TypeName;
+  name: Token;
+}
+
+export interface WhileStatement {
+  kind: "WhileStatement";
+  condition: Expression;
+  body: BlockStatement;
+}
+
+export interface IfStatement {
+  kind: "IfStatement";
+  condition: Expression;
+  body: BlockStatement;
+}
+
+export interface BlockStatement {
+  kind: "BlockStatement";
+  body: Statement[];
 }
 
 export interface ExpressionStatement {

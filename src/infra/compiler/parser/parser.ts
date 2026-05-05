@@ -1,6 +1,8 @@
 import type { Token } from "@shared/types/tokens.types";
 import type { ParserState, Program } from "./parser.state";
 import { parseProgram } from "./parser.parse";
+import { createParseContext, cstRoot, cstString } from "./parser.cst";
+import type { TreeNode } from "@infra/structs/tree/Tree.types";
 
 /**
  * Parser Entry Point
@@ -8,14 +10,15 @@ import { parseProgram } from "./parser.parse";
  * @returns The parsed program
  */
 
-export function parse(tokens: Token[]): Program {
+export function parse(tokens: Token[]): { ast: Program; cst: TreeNode | null; cstString: string } {
   const state: ParserState = {
     tokens,
     current: 0,
     errors: [],
   };
 
-  const program = parseProgram(state);
+  const ctx = createParseContext(state);
+  const program = parseProgram(ctx);
 
   if (state.errors.length > 0) {
     const first = state.errors[0];
@@ -27,5 +30,5 @@ export function parse(tokens: Token[]): Program {
     throw new Error("Parse failed.");
   }
 
-  return program;
+  return { ast: program, cst: cstRoot(ctx), cstString: cstString(ctx) };
 }
