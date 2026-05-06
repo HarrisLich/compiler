@@ -1,11 +1,11 @@
 import { describe, it, expect } from "vitest";
-import { scanTokens } from "../../src/infra/compiler/lexer/lexer";
-import { parse } from "../../src/infra/compiler/parser/parser";
+import { scanTokens } from "../../src/infra/compiler/lexer/scanTokens.lexer";
+import { parse } from "../../src/infra/compiler/parser/parse.parser";
 import type {
   Expression,
   Program,
   Statement,
-} from "../../src/infra/compiler/parser/parser.state";
+} from "../../src/infra/compiler/parser/state.parser";
 
 function assertExpression(expr: Expression): void {
   switch (expr.kind) {
@@ -245,11 +245,11 @@ const CASES: Case[] = [
   {
     name: "9.9 while with boolean condition",
     source:
-      '{ boolean done done = false while (done != true) { print("not done") done = true } }$',
+      '{ boolean d d = false while (d != true) { print("not done") d = true } }$',
   },
   {
     name: "9.10 while true single iteration via mutation",
-    source: '{ boolean go go = true while (go == true) { print("once") go = false } }$',
+    source: '{ boolean g g = true while (g == true) { print("once") g = false } }$',
   },
 
   // SECTION 10
@@ -309,7 +309,7 @@ const CASES: Case[] = [
   {
     name: "11.3 while inside if",
     source:
-      "{ boolean go go = true if (go == true) { int i i = 0 while (i != 3) { print(i) i = 1 + i } } }$",
+      "{ boolean g g = true if (g == true) { int i i = 0 while (i != 3) { print(i) i = 1 + i } } }$",
   },
   {
     name: "11.4 arithmetic in print inside if",
@@ -318,7 +318,7 @@ const CASES: Case[] = [
   {
     name: "11.5 boolean tracks state across while",
     source:
-      '{ boolean found int counter found = false counter = 0 while (found != true) { if (counter == 5) { found = true print("found at five") } counter = 1 + counter } print(counter) }$',
+      '{ boolean f int n f = false n = 0 while (f != true) { if (n == 5) { f = true print("found at five") } n = 1 + n } print(n) }$',
   },
   {
     name: "11.6 nested whiles with if inside",

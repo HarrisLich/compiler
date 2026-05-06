@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { scanTokens } from "../../src/infra/compiler/lexer/lexer";
-import { parse } from "../../src/infra/compiler/parser/parser";
+import { scanTokens } from "../../src/infra/compiler/lexer/scanTokens.lexer";
+import { parse } from "../../src/infra/compiler/parser/parse.parser";
 
 describe("parse", () => {
   it("parses print(1)$ as Program with one PrintStatement and Literal", () => {
@@ -63,6 +63,6 @@ describe("parse", () => {
 
   it("throws when extra tokens appear before end of program", () => {
     const tokens = scanTokens("{ print(1) } + $");
-    expect(() => parse(tokens)).toThrow(/Expected end of program/);
+    expect(() => parse(tokens)).toThrow(/Expected '\$' at end of program/);
   });
 });

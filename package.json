@@ -1,7 +1,7 @@
 {
   "name": "personal",
   "version": "0.0.1",
-  "description": "Personal",
+  "description": "Compiler (lexer/parser/semantic/codegen)",
   "keywords": [
     "personal"
   ],
