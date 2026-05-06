@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { scanTokens } from "../../src/infra/compiler/lexer/lexer";
+import { scanTokens } from "../../src/infra/compiler/lexer/scanTokens.lexer";
 
 describe("scanTokens (errors)", () => {
   it("throws on unexpected character", () => {
@@ -27,6 +27,6 @@ describe("scanTokens (errors)", () => {
   });
 
   it("error message includes line number", () => {
-    expect(() => scanTokens('"\n\n@')).toThrow(/line 3/);
+    expect(() => scanTokens("\n\n@")).toThrow(/line 3/);
   });
 });

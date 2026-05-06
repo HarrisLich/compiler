@@ -1,17 +1,13 @@
 import { describe, it, expect } from "vitest";
-import { scanTokens } from "../../src/infra/compiler/lexer/lexer";
+import { scanTokens } from "../../src/infra/compiler/lexer/scanTokens.lexer";
 import { TokenType } from "../../src/shared/types/tokens.types";
 
 describe("scanTokens (sample program 1 — success)", () => {
   it("tokenizes sample with comment and many token types, ending with $", () => {
-    const source = `{/* almost every token */ ()
-print=whileif"intstring"
-intstringbooleanfalse
-true
-==!=+ a 0123456789}$`;
+    const source = `{/* almost every token */ print(1) int a a=1+1 while(true) if((1==1)) print("x")==!=+a0123456789}$`;
     const tokens = scanTokens(source);
     const last = tokens[tokens.length - 1]!;
-    expect(last.type).toBe(TokenType.EOF);
+    expect(last.type).toBe(TokenType.EOI);
     expect(tokens.length).toBeGreaterThan(1);
     const types = tokens.slice(0, -1).map((t) => t.type);
     expect(types).toContain(TokenType.LEFT_BRACE);
@@ -27,5 +23,6 @@ true
     expect(types).toContain(TokenType.PLUS);
     expect(types).toContain(TokenType.NUMBER);
     expect(types).toContain(TokenType.RIGHT_BRACE);
+    expect(types).toContain(TokenType.EOF);
   });
 });

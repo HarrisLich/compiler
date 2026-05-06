@@ -1,9 +1,9 @@
 import { describe, it, expect } from "vitest";
-import { scanTokens } from "../../src/infra/compiler/lexer/lexer";
+import { scanTokens } from "../../src/infra/compiler/lexer/scanTokens.lexer";
 import { TokenType } from "../../src/shared/types/tokens.types";
 
 describe("scanTokens (literals)", () => {
-  it("tokenizes integer numbers", () => {
+  it("tokenizes each digit as its own NUMBER token (digit is a single character)", () => {
     const tokens = scanTokens("0 42 999");
     expect(tokens[0]).toMatchObject({
       type: TokenType.NUMBER,
@@ -12,14 +12,30 @@ describe("scanTokens (literals)", () => {
     });
     expect(tokens[1]).toMatchObject({
       type: TokenType.NUMBER,
-      lexeme: "42",
-      literal: 42,
+      lexeme: "4",
+      literal: 4,
     });
     expect(tokens[2]).toMatchObject({
       type: TokenType.NUMBER,
-      lexeme: "999",
-      literal: 999,
+      lexeme: "2",
+      literal: 2,
     });
+    expect(tokens[3]).toMatchObject({
+      type: TokenType.NUMBER,
+      lexeme: "9",
+      literal: 9,
+    });
+    expect(tokens[4]).toMatchObject({
+      type: TokenType.NUMBER,
+      lexeme: "9",
+      literal: 9,
+    });
+    expect(tokens[5]).toMatchObject({
+      type: TokenType.NUMBER,
+      lexeme: "9",
+      literal: 9,
+    });
+    expect(tokens[6].type).toBe(TokenType.EOI);
   });
 
   it("tokenizes string literals", () => {
@@ -47,12 +63,7 @@ describe("scanTokens (literals)", () => {
     });
   });
 
-  it("treats comment-like sequence inside string as part of the string literal", () => {
-    const tokens = scanTokens('"hello /* comment */ world"');
-    expect(tokens[0]).toMatchObject({
-      type: TokenType.STRING_LITERAL,
-      literal: "hello /* comment */ world",
-    });
-    expect(tokens).toHaveLength(2);
+  it("rejects slash and star inside strings (CharList is only a-z and space)", () => {
+    expect(() => scanTokens('"hello /* comment */ world"')).toThrow(/Invalid string contents/);
   });
 });

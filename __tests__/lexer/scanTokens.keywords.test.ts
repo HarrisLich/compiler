@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { scanTokens } from "../../src/infra/compiler/lexer/lexer";
+import { scanTokens } from "../../src/infra/compiler/lexer/scanTokens.lexer";
 import { TokenType } from "../../src/shared/types/tokens.types";
 
 describe("scanTokens (keywords and identifiers)", () => {
@@ -19,18 +19,23 @@ describe("scanTokens (keywords and identifiers)", () => {
     ]);
   });
 
-  it("treats unknown words as IDENTIFIER", () => {
-    const tokens = scanTokens("foo bar x");
-    expect(tokens[0]).toMatchObject({ type: TokenType.IDENTIFIER, lexeme: "foo" });
-    expect(tokens[1]).toMatchObject({ type: TokenType.IDENTIFIER, lexeme: "bar" });
-    expect(tokens[2]).toMatchObject({ type: TokenType.IDENTIFIER, lexeme: "x" });
-    expect(tokens[3].type).toBe(TokenType.EOF);
+  it("treats each lowercase letter as its own IDENTIFIER (Id ::= char)", () => {
+    const tokens = scanTokens("x y z");
+    expect(tokens[0]).toMatchObject({ type: TokenType.IDENTIFIER, lexeme: "x" });
+    expect(tokens[1]).toMatchObject({ type: TokenType.IDENTIFIER, lexeme: "y" });
+    expect(tokens[2]).toMatchObject({ type: TokenType.IDENTIFIER, lexeme: "z" });
+    expect(tokens[3].type).toBe(TokenType.EOI);
   });
 
-  it("allows letters, digits, and underscore in identifiers", () => {
-    const tokens = scanTokens("a1 _ab");
-    expect(tokens[0]).toMatchObject({ type: TokenType.IDENTIFIER, lexeme: "a1" });
-    expect(tokens[1]).toMatchObject({ type: TokenType.IDENTIFIER, lexeme: "_ab" });
+  it("tokenizes adjacent letters as separate single-char identifiers", () => {
+    const tokens = scanTokens("ab");
+    expect(tokens[0]).toMatchObject({ type: TokenType.IDENTIFIER, lexeme: "a" });
+    expect(tokens[1]).toMatchObject({ type: TokenType.IDENTIFIER, lexeme: "b" });
+    expect(tokens[2].type).toBe(TokenType.EOI);
+  });
+
+  it("throws on underscore (not in char ::= a..z)", () => {
+    expect(() => scanTokens("_")).toThrow(/Unexpected character/);
   });
 
   it("mixes keywords and identifiers", () => {

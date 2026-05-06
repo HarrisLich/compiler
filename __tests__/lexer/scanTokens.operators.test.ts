@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { scanTokens } from "../../src/infra/compiler/lexer/lexer";
+import { scanTokens } from "../../src/infra/compiler/lexer/scanTokens.lexer";
 import { TokenType } from "../../src/shared/types/tokens.types";
 
 describe("scanTokens (operators and two-char tokens)", () => {
@@ -22,7 +22,7 @@ describe("scanTokens (operators and two-char tokens)", () => {
       TokenType.PLUS,
       TokenType.NUMBER,
       TokenType.RIGHT_PAREN,
-      TokenType.EOF,
+      TokenType.EOI,
     ]);
   });
 
@@ -33,7 +33,7 @@ describe("scanTokens (operators and two-char tokens)", () => {
       TokenType.LEFT_PAREN,
       TokenType.IDENTIFIER,
       TokenType.RIGHT_PAREN,
-      TokenType.EOF,
+      TokenType.EOI,
     ]);
   });
 });
