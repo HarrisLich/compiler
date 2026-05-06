@@ -1,4 +1,3 @@
-import { TokenType } from "@shared/types/tokens.types";
 import type { Token } from "@shared/types/tokens.types";
 import type {
   AssignmentStatement,
@@ -15,7 +14,7 @@ import type {
   VarDeclStatement,
   Variable,
   WhileStatement,
-} from "./parser.state";
+} from "./state.parser";
 
 export function makeProgram(body: BlockStatement): Program {
   return { kind: "Program", body };
@@ -64,8 +63,3 @@ export function makeGrouping(expression: Expression): Grouping {
 export function makeBinary(left: Expression, operator: Token, right: Expression): Binary {
   return { kind: "Binary", left, operator, right };
 }
-
-export function isEqualityOperatorType(type: TokenType): boolean {
-  return type === TokenType.EQUAL_EQUAL || type === TokenType.BANG_EQUAL;
-}
-

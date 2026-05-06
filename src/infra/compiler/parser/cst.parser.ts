@@ -1,7 +1,7 @@
 import type { Token, TokenType } from "@shared/types/tokens.types";
 import { Tree } from "@infra/structs/tree/Tree";
-import type { ParserState } from "./parser.state";
-import { advance, consume as runtimeConsume, peek } from "./parser.runtime";
+import type { ParserState } from "./state.parser";
+import { advance, consume as runtimeConsume, peek } from "./runtime.parser";
 
 export type CstBuilder = ReturnType<typeof Tree>;
 
@@ -39,7 +39,7 @@ function tokenLabel(t: Token): string {
 
 export function consume(
   ctx: ParseContext,
-  type: TokenType,
+  type: TokenType | readonly TokenType[],
   message: string
 ): Token {
   const tok = runtimeConsume(ctx.state, type, message);

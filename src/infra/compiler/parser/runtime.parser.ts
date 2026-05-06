@@ -1,6 +1,6 @@
 import type { Token } from "@shared/types/tokens.types";
 import { TokenType } from "@shared/types/tokens.types";
-import type { ParserError, ParserState } from "./parser.state";
+import type { ParserError, ParserState } from "./state.parser";
 
 function tokenAt(state: ParserState, index: number): Token {
   const last = state.tokens[state.tokens.length - 1];
@@ -52,18 +52,19 @@ export function match(state: ParserState, ...types: TokenType[]): boolean {
 
 export function consume(
   state: ParserState,
-  type: TokenType,
+  type: TokenType | readonly TokenType[],
   message: string
 ): Token {
   const t = peek(state);
-  if (t.type === type) {
+  const expected = Array.isArray(type) ? type : [type];
+  if (expected.includes(t.type)) {
     return advance(state);
   }
   const err: ParserError = {
     message,
     line: t.line,
     column: t.column,
-    expected: type,
+    expected: Array.isArray(type) ? [...type] : type,
     found: t,
   };
   state.errors.push(err);
@@ -71,5 +72,5 @@ export function consume(
 }
 
 export function isAtEnd(state: ParserState): boolean {
-  return peek(state).type === TokenType.EOF;
+  return peek(state).type === TokenType.EOI;
 }

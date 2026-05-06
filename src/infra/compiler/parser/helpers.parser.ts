@@ -1,5 +1,5 @@
 import { TokenType } from "@shared/types/tokens.types";
-import type { TypeName } from "./parser.state";
+import type { TypeName } from "./state.parser";
 
 export function tokenTypeToTypeName(type: TokenType): TypeName {
   switch (type) {

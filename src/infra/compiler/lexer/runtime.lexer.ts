@@ -1,4 +1,4 @@
-import type { LexerState } from "./lexer.state";
+import type { LexerState } from "./state.lexer";
 import type { TokenType } from "@shared/types/tokens.types";
 
 export function isAtEnd(state: LexerState): boolean {
