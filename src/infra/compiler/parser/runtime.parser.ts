@@ -64,7 +64,7 @@ export function consume(
     message,
     line: t.line,
     column: t.column,
-    expected: Array.isArray(type) ? [...type] : type,
+    expected: type,
     found: t,
   };
   state.errors.push(err);

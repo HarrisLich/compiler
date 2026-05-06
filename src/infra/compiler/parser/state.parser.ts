@@ -10,7 +10,7 @@ export interface ParserError {
   message: string;
   line: number;
   column: number;
-  expected: TokenType | TokenType[];
+  expected: TokenType | readonly TokenType[];
   found: Token;
 }
 
