@@ -1,10 +1,10 @@
 # Compiler
 
-Lexer, parser, semantic analysis, type checking, and 6502 codegen for the grammar specified from https://www.labouseur.com/courses/compilers/ (or grammar.pdf). The final surface product in this repo is a quick Express app with a browser UI and a JSON compile API.
+Lexer, parser, semantic analysis, type checking, and 6502 codegen for the grammar specified from [https://www.labouseur.com/courses/compilers/](https://www.labouseur.com/courses/compilers/) (or grammar.pdf). The final surface product in this repo is a quick Express app with a browser UI and a JSON compile API.
 
 ## Run it (npm or Yarn)
 
-All scripts are defined in this folder’s `package.json`. From the **`compiler/`** directory:
+All scripts are defined in this folder’s `package.json`. From the `**compiler/**` directory:
 
 ```bash
 cd compiler
@@ -41,8 +41,8 @@ If you later publish this package or wire it into a monorepo under a scoped name
 ### What `src/index.ts` does
 
 1. Loads `dotenv` for environment variables (for example `PORT`).
-2. Serves a minimal HTML UI at **`GET /`** with a “Compile” button.
-3. Exposes **`POST /api/compile`** with JSON body `{ "source": "<program text>" }`. It runs scan → parse → semantic analysis → typecheck → `generate6502` when there are no errors, and returns `compilerOutput` plus `codegenHex`.
+2. Serves a minimal HTML UI at `**GET /`\*\* with a “Compile” button.
+3. Exposes `**POST /api/compile**` with JSON body `{ "source": "<program text>" }`. It runs scan → parse → semantic analysis → typecheck → `generate6502` when there are no errors, and returns `compilerOutput` plus `codegenHex`.
 
 ### Library-style entry (pipeline pieces)
 
@@ -60,7 +60,7 @@ The compiler stages live under `src/infra/compiler/` and are imported with path 
 
 Runs the same pipeline as the API (lexer through codegen) and prints the token/CST/AST/semantic/type sections plus **hex codegen** to the console. Exits with status **1** if the file cannot be read, the pipeline throws, or there are semantic or type **errors** (codegen is skipped in that case).
 
-From **`compiler/`**:
+From `**compiler/`\*\*:
 
 ```bash
 yarn compile:file ./path/to/program.txt
@@ -90,5 +90,13 @@ npm run compile:file --prefix compiler -- ./compiler/some-program.txt
 | `npm run typecheck`    | `tsc --noEmit`                                                                               |
 | `npm run lint`         | ESLint                                                                                       |
 | `npm run compile:file` | Read a source file and print compiler report + hex to stdout (`tsx src/cli/compile-file.ts`) |
+
+---
+
+### Deployed on
+
+[harrislich.dev](https://harrislich.dev/?app=compilerlab)
+
+### Author
 
 Harris Lichstein
