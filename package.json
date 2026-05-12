@@ -14,7 +14,8 @@
   "scripts": {
     "clean": "rimraf dist",
     "build": "yarn clean && tsc -p tsconfig.json",
-    "dev": "npx tsx src/index.ts",
+    "dev": "tsx src/index.ts",
+    "compile:file": "tsx src/cli/compile-file.ts",
     "debug": "DEBUG=app:* yarn dev",
     "start": "node dist/index.js",
     "lint": "eslint . --ext .ts",

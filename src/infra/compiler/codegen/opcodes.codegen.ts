@@ -1,13 +1,13 @@
-/** Global scratch for temps / compare RHS (must match image layout: byte 0xFF not used by heap). */
+/** Opcode bytes for the lab VM; 
+ * abs ops patch low byte (high 0x00). 
+ * Scratch at 0xFF (not used by heap). */
 export const SCRATCH_ADDR = 0xff;
 
-/** 6502 lab opcode bytes used by this codegen (absolute addressing uses LL HH little-endian; HH=00). */
 export const OP = {
   LDA_IMM: 0xa9,
   LDA_ABS: 0xad,
   STA_ABS: 0x8d,
   ADC_ABS: 0x6d,
-  /** Clear carry — required before `ADC` for correct unsigned add in this subset. */
   CLC: 0x18,
   LDX_IMM: 0xa2,
   LDX_ABS: 0xae,

@@ -11,7 +11,8 @@ import type { Scope } from "@infra/compiler/semantic/symbols.types.semantic";
 import { OP } from "./opcodes.codegen";
 import type { AbsLowPatch, ImmLowPatch } from "./staticTable.codegen";
 
-/** Single-letter ids + const cells share slot indices (address = staticBase + index). Scratch is fixed at 0xFF. */
+/** Var slots use `staticBase + index`; 
+ * scratch fixed at 0xFF. */
 export type SlotIndex = number;
 
 export interface CodegenContext {
@@ -20,7 +21,6 @@ export interface CodegenContext {
   code: number[];
   absPatches: AbsLowPatch[];
   immPatches: ImmLowPatch[];
-  /** Heap intern order (first occurrence preserved). */
   internOrder: string[];
   slots: Array<{ kind: "const0" | "const1" | "var" }>;
 
@@ -28,7 +28,6 @@ export interface CodegenContext {
   const1Idx: number;
 
   currentScope: Scope;
-  /** Lexeme → slot index; inner frame shadows outer */
   frames: Map<string, SlotIndex>[];
 
   labels: Map<string, number>;
@@ -47,7 +46,8 @@ export interface CodegenContext {
   emitStaAbs(slot: SlotIndex): void;
   emitLdaScratch(): void;
   emitStaScratch(): void;
-  /** Reference-style no-op: LDA $FF / STA $FF after a value is in scratch (uniform template). */
+  /** LDA/STA scratch in sequence so a later 
+   * `emitLdaScratch` is not folded with a prior STA. */
   emitScratchSelfNormalize(): void;
   emitClc(): void;
   emitAdcScratch(): void;
@@ -56,7 +56,8 @@ export interface CodegenContext {
   emitLdxScratch(): void;
   emitLdyAbs(slot: SlotIndex): void;
   emitLdyScratch(): void;
-  /** `CPX` only against scratch `$FF` — all value compares go through `emitCpxScratch`. */
+  /** Compares always use X against 
+   * the single scratch byte at 0xFF. */
   emitCpxScratch(): void;
   emitBne(label: string): void;
   emitBrk(): void;
@@ -175,7 +176,6 @@ export function createCodegenContext(
       ctx.absPatches.push({ kind: "absScratch", codeIndex: ctx.code.length - 2 });
       ctx.emitBytes(OP.STA_ABS, 0, 0);
       ctx.absPatches.push({ kind: "absScratch", codeIndex: ctx.code.length - 2 });
-      /* Leave false so a following `emitLdaScratch` is a real load (does not peel this STA). */
       scratchState.lastStaScratch = false;
     },
 
@@ -255,10 +255,9 @@ export function createCodegenContext(
   return ctx;
 }
 
-/**
- * After the **value** `CPX scratch` (X vs RHS in `$FF`): Z=1 iff equal.
- * Writes 0/1 into `$FF` using only further `CPX $FF` + `BNE` (no `CPX` of const/var cells).
- */
+/** Turn Z from `CPX scratch` into 0/1 in 
+ * scratch without comparing X to anything 
+ * but scratch. */
 function emitEqResultInScratch(ctx: CodegenContext): void {
   const onFalse = ctx.mkLabel("beq_f");
   const done = ctx.mkLabel("beq_d");
@@ -296,7 +295,6 @@ function canIntExprLoadDirectToX(expr: Expression): boolean {
   );
 }
 
-/** Load int expression into X (LHS for compares). Uses scratch when the value must come from A. */
 function emitIntExprToX(ctx: CodegenContext, expr: Expression, depth: number): void {
   if (expr.kind === "Variable") {
     ctx.emitLdxAbs(resolveVar(ctx, expr.name.lexeme));
@@ -311,9 +309,6 @@ function emitIntExprToX(ctx: CodegenContext, expr: Expression, depth: number): v
   ctx.emitLdxScratch();
 }
 
-/**
- * Literal compare: RHS literal in scratch first, LHS in X, CPX scratch, boolean in scratch.
- */
 function tryEmitIntLiteralCompareToScratch(
   ctx: CodegenContext,
   expr: Extract<Expression, { kind: "Binary" }>,
@@ -370,10 +365,6 @@ function inferExprType(expr: Expression, scope: Scope): TypeName | "error" {
   }
 }
 
-/**
- * General int compare: prefer RHS → scratch, LHS direct in X; else left via scratch then right.
- * Result 0/1 in scratch.
- */
 function emitBoolCompareToScratch(ctx: CodegenContext, expr: Extract<Expression, { kind: "Binary" }>, neq: boolean): void {
   if (canIntExprLoadDirectToX(expr.left)) {
     emitExpr(ctx, expr.right, 0);
@@ -392,10 +383,6 @@ function emitBoolCompareToScratch(ctx: CodegenContext, expr: Extract<Expression,
   else emitEqResultInScratch(ctx);
 }
 
-/**
- * Emit an int compare that only sets flags (Z from `CPX scratch`).
- * After this, Z=1 iff equal, Z=0 iff not equal.
- */
 function emitIntCompareSetZ(ctx: CodegenContext, expr: Extract<Expression, { kind: "Binary" }>): void {
   if (canIntExprLoadDirectToX(expr.left)) {
     emitExpr(ctx, expr.right, 0);
@@ -412,7 +399,6 @@ function emitIntCompareSetZ(ctx: CodegenContext, expr: Extract<Expression, { kin
   ctx.emitCpxScratch();
 }
 
-/** Condition value 0/1 in scratch (for `if` / `while`: LDX #1 / CPX scratch). */
 function emitBooleanToScratch(ctx: CodegenContext, expr: Expression, depth: number): void {
   switch (expr.kind) {
     case "Literal":
@@ -449,7 +435,6 @@ function emitBooleanToScratch(ctx: CodegenContext, expr: Expression, depth: numb
   ctx.emitStaScratch();
 }
 
-/** Emit expression; result in A (accumulator). */
 export function emitExpr(ctx: CodegenContext, expr: Expression, depth: number): void {
   switch (expr.kind) {
     case "Literal": {
@@ -481,18 +466,11 @@ export function emitExpr(ctx: CodegenContext, expr: Expression, depth: number): 
         const R = expr.right;
         const leftNumLit = L.kind === "Literal" && typeof L.value === "number";
         const rightNumLit = R.kind === "Literal" && typeof R.value === "number";
-        /**
-         * IMPORTANT:
-         * We only have one scratch byte ($FF). If we store the literal into scratch and then
-         * recursively emit the RHS, nested `+` expressions will overwrite scratch and corrupt
-         * the outer addition (e.g. `2+3+b` would incorrectly become `3+3+b`).
-         *
-         * So when one side is a numeric literal, we compute the non-literal side first,
-         * store *that* into scratch, then load the literal into A and `ADC $FF`.
-         */
+        // One scratch byte: evaluate the non-literal side first, 
+        // then ADC the literal, so nested `+` does not clobber scratch.
         if (leftNumLit && !rightNumLit) {
-          emitExpr(ctx, R, depth + 1); // may use scratch internally; that's fine
-          ctx.emitStaScratch(); // preserve RHS result
+          emitExpr(ctx, R, depth + 1);
+          ctx.emitStaScratch();
           ctx.emitLdaImm(Number(L.value) & 0xff);
           ctx.emitAdcScratch();
           return;
@@ -505,7 +483,6 @@ export function emitExpr(ctx: CodegenContext, expr: Expression, depth: number): 
           return;
         }
 
-        // Fallback (rare in our grammar): RHS to scratch, LHS in A, then ADC scratch.
         emitExpr(ctx, R, depth + 1);
         ctx.emitStaScratch();
         emitExpr(ctx, L, depth + 1);
@@ -530,7 +507,6 @@ export function emitExpr(ctx: CodegenContext, expr: Expression, depth: number): 
   }
 }
 
-/** Boolean expression as 0/1 in A (loads from scratch after compare). */
 export function emitBooleanExpr(ctx: CodegenContext, expr: Expression, depth: number): void {
   emitBooleanToScratch(ctx, expr, depth);
   ctx.emitLdaScratch();
@@ -583,7 +559,6 @@ function walkStatement(ctx: CodegenContext, stmt: Statement): void {
       }
       const slot = ctx.allocSlot("var");
       frame.set(name, slot);
-      /* Static slots are 0 in the final image (see finalizeImage256); omit redundant LDA #0/STA. */
       return;
     }
     case "AssignmentStatement": {
@@ -640,7 +615,6 @@ function walkStatement(ctx: CodegenContext, stmt: Statement): void {
       const c0 = stmt.condition.kind === "Grouping" ? stmt.condition.expression : stmt.condition;
       if (c0.kind === "Binary" && c0.operator.type === TokenType.EQUAL_EQUAL) {
         emitIntCompareSetZ(ctx, c0);
-        // If Z==0 (not equal) skip the body.
         ctx.emitBne(skip);
       } else {
         emitBooleanToScratch(ctx, stmt.condition, 0);
@@ -659,17 +633,10 @@ function walkStatement(ctx: CodegenContext, stmt: Statement): void {
       ctx.emitLabel(loop);
       const c0 = stmt.condition.kind === "Grouping" ? stmt.condition.expression : stmt.condition;
       if (c0.kind === "Binary" && c0.operator.type === TokenType.BANG_EQUAL) {
-        // `while (L != R) { ... }`:
-        // After compare, Z=0 iff not equal.
-        // Use:
-        //   BNE body
-        //   (unconditional) BNE exit
-        // body:
-        //   ...
-        //   (unconditional) BNE loop
+        // `!=`: BNE enters body when unequal; 
+        // CPX const0 + BNE skips to exit when equal.
         emitIntCompareSetZ(ctx, c0);
         ctx.emitBne(body);
-        // Unconditional branch to exit (X=1 != const0 => Z=0 => BNE taken).
         ctx.emitLdxImm(1);
         ctx.emitBytes(OP.CPX_ABS, 0, 0);
         ctx.absPatches.push({ kind: "absLow", codeIndex: ctx.code.length - 2, slotIndex: ctx.const0Idx });
@@ -685,7 +652,6 @@ function walkStatement(ctx: CodegenContext, stmt: Statement): void {
 
       walkBlock(ctx, stmt.body, true);
       ctx.emitLdxImm(1);
-      // Unconditional branch via CPX const0 (always 0): X=1 != 0 => Z=0 => BNE taken.
       ctx.emitBytes(OP.CPX_ABS, 0, 0);
       ctx.absPatches.push({ kind: "absLow", codeIndex: ctx.code.length - 2, slotIndex: ctx.const0Idx });
       ctx.emitBne(loop);

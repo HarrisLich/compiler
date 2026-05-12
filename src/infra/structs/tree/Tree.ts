@@ -1,9 +1,6 @@
-//-----------------------------------------
-// treeDemo.js
-//
-// By Alan G. Labouseur, based on the 2009
-// work by Michael Ardizzone and Tim Smith.
-//-----------------------------------------
+// CST tree utilities; adapted from a 
+// compilers-course tree demo 
+// (Labouseur et al.).
 
 import type { TreeNode, TreeKind } from "./Tree.types";
 

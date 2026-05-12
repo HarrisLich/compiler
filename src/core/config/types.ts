@@ -1,6 +1,5 @@
-/**
- * Logger config shape used by core/config/logger and accepted by pino().
- */
+/** Shape accepted by `pino()` 
+ * in `core/config/logger`. */
 export interface LoggerConfig {
   level?: string;
   base?: Record<string, string>;

@@ -24,7 +24,8 @@ export function typecheckProgram(
   void rootScope;
   void blockToScope;
 
-  // Type environment built in statement order (so declarations only apply after they appear).
+  // Types accumulate in source order so 
+  // a name is not visible before its declaration.
   const envFrames: Array<Map<string, TypeName>> = [new Map()];
 
   function reportError(message: string, token: Token): void {
@@ -110,7 +111,6 @@ export function typecheckProgram(
   function walkStatement(stmt: Statement): void {
     switch (stmt.kind) {
       case "VarDeclStatement": {
-        // Note: allow shadowing by writing into current frame.
         envFrames[envFrames.length - 1]!.set(stmt.name.lexeme, stmt.typeName);
         return;
       }

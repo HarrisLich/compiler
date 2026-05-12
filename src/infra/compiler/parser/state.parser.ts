@@ -14,8 +14,6 @@ export interface ParserError {
   found: Token;
 }
 
-// --- AST: Program & Statements ---
-
 export interface Program {
   kind: "Program";
   body: BlockStatement;
@@ -70,8 +68,6 @@ export interface ExpressionStatement {
   kind: "ExpressionStatement";
   expression: Expression;
 }
-
-// --- AST: Expressions ---
 
 export type Expression = Literal | Binary | Grouping | Variable;
 

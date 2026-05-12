@@ -19,8 +19,8 @@ export function scanTokens(source: string): Token[] {
     scanToken(state);
   }
 
-  // Always append an end-of-input sentinel so downstream code can safely peek.
-  // Note: `$` is tokenized as TokenType.EOF (grammar terminal). This sentinel is separate.
+  // Lexer-only sentinel after grammar EOF (`$`) 
+  // so the parser can require true end-of-input.
   state.tokens.push({
     type: TokenType.EOI,
     lexeme: "",

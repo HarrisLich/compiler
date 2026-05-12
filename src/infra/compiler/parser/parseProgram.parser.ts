@@ -64,7 +64,6 @@ function parseStatement(ctx: ParseContext): Statement {
     ] as const;
 
     if (match(ctx, TokenType.PRINT)) {
-      // PrintStatement ::= print ( Expr )
       return branchWithReturn(ctx, "PrintStatement", () => {
         consume(ctx, TokenType.LEFT_PAREN, "Expected '(' after 'print'.");
         const expression = parseExpression(ctx);
@@ -115,7 +114,6 @@ function parseStatement(ctx: ParseContext): Statement {
       });
     }
 
-    // Fallback for better error reporting.
     if (t.type === TokenType.EQUAL) {
       consume(
         ctx,
@@ -129,20 +127,19 @@ function parseStatement(ctx: ParseContext): Statement {
 }
 
 export function parseExpression(ctx: ParseContext): Expression {
-  // Expr ::= IntExpr | StringExpr | BooleanExpr | Id — equality (==/!=) only inside
-  // BooleanExpr ::= ( Expr boolop Expr ) | boolval, i.e. via parenthesized form in parseFactor.
   return branchWithReturn(ctx, "Expr", () => parseExprNoBoolOp(ctx));
 }
 
-/** Expr without top-level ==/!= (those appear only in ( Expr boolop Expr ) via parseParenContentAfterOpen). */
+/** `==` / `!=` only appear inside `(...)` 
+ * for boolean expressions, not at the 
+ * top level of `Expr`. */
 function parseExprNoBoolOp(ctx: ParseContext): Expression {
   return parseIntExpr(ctx);
 }
 
-/**
- * After `(` has been consumed: either ( Expr boolop Expr ) or plain ( Expr ) for grouping.
- * @param requireEquality - if true (BooleanExpr), must have boolop; otherwise parse error.
- */
+/** After `(` was consumed. If `requireEquality`, 
+ * must parse `(Expr boolop Expr)`; otherwise 
+ * rejects (no grouping-only parens). */
 function parseParenContentAfterOpen(
   ctx: ParseContext,
   requireEquality: boolean
@@ -161,9 +158,6 @@ function parseParenContentAfterOpen(
 }
 
 function parseBooleanExpr(ctx: ParseContext): Expression {
-  // BooleanExpr ::= ( Expr boolop Expr ) | boolval
-  // boolop ::= == | !=
-  // boolval ::= true | false
   return branchWithReturn(ctx, "BooleanExpr", () => {
     if (match(ctx, TokenType.TRUE)) {
       const token = previous(ctx.state);
@@ -179,16 +173,12 @@ function parseBooleanExpr(ctx: ParseContext): Expression {
 }
 
 function parseIntExpr(ctx: ParseContext): Expression {
-  // IntExpr ::= digit intop Expr | digit
-  // digit is tokenized as NUMBER with a single digit lexeme.
   return branchWithReturn(ctx, "IntExpr", () => {
-    // IntExpr must start with a digit.
     if (match(ctx, TokenType.NUMBER)) {
       const digitTok = previous(ctx.state);
       const value = digitTok.literal ?? digitTok.lexeme;
       const left: Expression = makeLiteral(digitTok, value as number);
 
-      // Right-recursive shape: digit + Expr
       if (match(ctx, TokenType.PLUS)) {
         const operator = previous(ctx.state);
         const right = parseExpression(ctx);
@@ -198,24 +188,17 @@ function parseIntExpr(ctx: ParseContext): Expression {
       return left;
     }
 
-    // Non-integer expressions:
-    // - StringExpr
-    // - BooleanExpr
-    // - Id
-    // - boolval (as BooleanExpr alternative)
     return parseNonIntExpr(ctx);
   });
 }
 
 function parseNonIntExpr(ctx: ParseContext): Expression {
-  // StringExpr ::= " CharList "
   if (match(ctx, TokenType.STRING_LITERAL)) {
     const token = previous(ctx.state);
     const value = token.literal ?? token.lexeme;
     return makeLiteral(token, value as string);
   }
 
-  // BooleanExpr ::= ( Expr boolop Expr ) | boolval
   if (peek(ctx.state).type === TokenType.TRUE || peek(ctx.state).type === TokenType.FALSE) {
     return parseBooleanExpr(ctx);
   }
@@ -223,13 +206,11 @@ function parseNonIntExpr(ctx: ParseContext): Expression {
     return parseBooleanExpr(ctx);
   }
 
-  // Id ::= char
   if (match(ctx, TokenType.IDENTIFIER)) {
     const name = previous(ctx.state);
     return makeVariable(name);
   }
 
-  // Fallback error
   consume(
     ctx,
     TokenType.NUMBER,

@@ -9,10 +9,6 @@ function hasErrors(semantic: SemanticResult, types: TypecheckResult): boolean {
   return all.some((e) => e.severity === "error");
 }
 
-/**
- * Build a 256-byte flat memory image for the lab VM: code from 0x00, static below heap, heap from 0xFF down.
- * Refuses to run if Pass 1 / Pass 2 reported any error-level diagnostic.
- */
 export function generate6502(
   ast: Program,
   semantic: SemanticResult,

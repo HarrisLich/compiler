@@ -37,13 +37,9 @@ export function analyzeProgram(ast: Program): SemanticResult {
       return;
     }
 
-    // Initialization analysis: a variable that is declared but not definitely assigned
-    // is still "in scope" but reading it is almost always a bug.
     if (checkInit) {
       const init = lookupInit(lexeme);
       if (init === false) {
-        // Uninitialized strings are particularly dangerous in the lab VM:
-        // strings are pointers into memory and printing a null/garbage pointer can crash.
         if (sym.typeName === "string") {
           reportError(`Use of uninitialized identifier '${lexeme}' (${context}).`, token);
         } else {
@@ -55,10 +51,8 @@ export function analyzeProgram(ast: Program): SemanticResult {
 
   let currentScope: Scope = rootScope;
 
-  // Track definite assignment per lexical scope frame.
-  // - `false`: declared but not assigned in this scope chain
-  // - `true`: definitely assigned (in this scope chain)
-  // Note: we only need to track declared identifiers; unknown names are handled by `lookupSymbol`.
+  // Per-frame definite assignment: false = declared, 
+  // true = assigned (lookup walks inner to outer frames).
   const initFrames: Array<Map<string, boolean>> = [new Map()];
 
   function lookupInit(name: string): boolean | undefined {
@@ -77,7 +71,8 @@ export function analyzeProgram(ast: Program): SemanticResult {
         return;
       }
     }
-    // If not found (e.g. root-scope decl), treat as current frame.
+    // No declaring frame yet 
+    // (only outer scope): record on the innermost frame.
     initFrames[initFrames.length - 1]!.set(name, value);
   }
 
@@ -134,18 +129,13 @@ export function analyzeProgram(ast: Program): SemanticResult {
             line: stmt.name.line,
             column: stmt.name.column,
           });
-          // Declared but not initialized yet.
           initFrames[initFrames.length - 1]!.set(key, false);
         }
         return;
       }
       case "AssignmentStatement": {
-        // Writing to a variable is allowed even if it hasn't been initialized yet.
         resolveVariable(stmt.name, "assignment target", false);
         walkExpression(stmt.value, "assignment value");
-        // After successfully typechecking the RHS syntactically, mark initialized.
-        // Even if the RHS had undeclared variables, this matches "definite assignment"
-        // semantics used by simple compilers (the variable now has some value).
         setInit(stmt.name.lexeme, true);
         return;
       }
@@ -175,7 +165,6 @@ export function analyzeProgram(ast: Program): SemanticResult {
     }
   }
 
-  // Program body is the outermost block; one scope for that block (no extra wrapper).
   walkBlock(ast.body, false);
 
   return { errors, rootScope, allScopes, blockToScope };

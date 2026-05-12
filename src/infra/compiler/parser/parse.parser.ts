@@ -5,12 +5,6 @@ import { createParseContext, cstRoot, cstString } from "./cst.parser";
 import type { TreeNode } from "@infra/structs/tree/Tree.types";
 import { TokenType } from "@shared/types/tokens.types";
 
-/**
- * Parser Entry Point
- * @param tokens - The list of tokens to parse
- * @returns The parsed program
- */
-
 export function parse(tokens: Token[]): { ast: Program; cst: TreeNode | null; cstString: string } {
   const state: ParserState = {
     tokens,
@@ -23,7 +17,6 @@ export function parse(tokens: Token[]): { ast: Program; cst: TreeNode | null; cs
   try {
     program = parseProgram(ctx);
   } catch (e) {
-    // If we recorded structured errors, prefer returning the first one with location + found token.
     const first = state.errors[0];
     if (first) {
       const expected = Array.isArray(first.expected) ? first.expected : [first.expected];

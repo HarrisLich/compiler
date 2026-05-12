@@ -1,6 +1,5 @@
 import type { Scope, SymbolEntry } from "./symbols.types.semantic";
 
-/** Walk scope chain outward: current block, then parent, ... */
 export function lookupSymbol(scope: Scope, lexeme: string): SymbolEntry | undefined {
   let s: Scope | null = scope;
   while (s !== null) {

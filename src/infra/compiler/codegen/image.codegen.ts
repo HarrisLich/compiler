@@ -13,7 +13,9 @@ export interface FinalizeInput {
 }
 
 /**
- * Lay out code [0..len), static slots just below heap, heap ending at 0xFE (0xFF reserved scratch); return 256 bytes.
+ * Lay out code from low addresses, 
+ * static slots below heap, heap ending below 0xFF; 
+ * returns 256 bytes.
  */
 export function finalizeImage256(input: FinalizeInput): number[] {
   const ram = new Array<number>(256).fill(0);
@@ -36,7 +38,6 @@ export function finalizeImage256(input: FinalizeInput): number[] {
 
   for (let i = 0; i < codeLen; i++) ram[i] = input.code[i]! & 0xff;
 
-  // Absolute addresses: LL 00 little-endian for each patched instruction.
   for (const p of input.absPatches) {
     const addr = p.kind === "absScratch" ? SCRATCH_ADDR : staticBase + p.slotIndex;
     if (addr < 0 || addr > 255) throw new Error(`Codegen: bad absolute address ${addr}`);
@@ -44,7 +45,6 @@ export function finalizeImage256(input: FinalizeInput): number[] {
     ram[p.codeIndex + 1] = 0;
   }
 
-  // Heap bytes + map literal -> low address of chunk (never occupies 0xFF)
   const literalLow = new Map<string, number>();
   let addr = SCRATCH_ADDR;
   for (const chunk of chunks) {

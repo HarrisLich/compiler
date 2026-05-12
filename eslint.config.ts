@@ -11,7 +11,7 @@ export default defineConfig([
     extends: ["js/recommended"],
     languageOptions: {
       globals: {
-        ...globals.node,    // <-- enables process, Buffer, __dirname, etc.
+        ...globals.node,
         ...globals.es2024,
       },
       ecmaVersion: "latest",

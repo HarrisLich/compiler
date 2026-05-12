@@ -1,4 +1,3 @@
-/** Immutable heap chunk after placement (bytes stored top-down in finalize). */
 export interface HeapChunk {
   readonly text: string;
   readonly bytes: readonly number[];

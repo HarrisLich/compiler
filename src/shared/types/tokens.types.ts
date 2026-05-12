@@ -19,10 +19,12 @@ export enum TokenType {
   LEFT_BRACE = "LEFT_BRACE",
   RIGHT_BRACE = "RIGHT_BRACE",
   EOF = "EOF",
-  /** End-of-input sentinel appended by lexer (not part of grammar). */
+  /** End-of-input sentinel appended by lexer 
+   * (not part of grammar). */
   EOI = "EOI",
 
-  /** Ignore-only token specs (lexer does not emit these) */
+  /** Ignore-only token specs 
+   * (lexer does not emit these) */
   WHITESPACE = "WHITESPACE",
   BLOCK_COMMENT = "BLOCK_COMMENT",
 }
@@ -62,9 +64,7 @@ export const TOKEN_SPECS: TokenSpec[] = [
   { type: TokenType.BOOLEAN, pattern: regex("^boolean") },
   { type: TokenType.TRUE, pattern: regex("^true") },
   { type: TokenType.FALSE, pattern: regex("^false") },
-  /** Id ::= char; char ::= a..z (exactly one lowercase letter per token) */
   { type: TokenType.IDENTIFIER, pattern: regex("^[a-z]") },
-  /** digit ::= 0..9 (single digit per token; multi-digit ints use digit + digit ...) */
   { type: TokenType.NUMBER, pattern: regex("^[0-9]") },
   { type: TokenType.STRING_LITERAL, pattern: regex('^"([\\s\\S]*?)"') },
   { type: TokenType.WHITESPACE, pattern: regex("^\\s+"), ignore: true },

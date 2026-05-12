@@ -2,7 +2,8 @@ import type { LexerState } from "./state.lexer";
 import { TOKEN_SPECS, TokenType } from "@shared/types/tokens.types";
 import { addToken, advanceBy, isAtEnd } from "./runtime.lexer";
 
-/** CharList ::= char CharList | space CharList | ε — only a-z and space inside quotes */
+/** String CharList: lowercase letters 
+ * and spaces only (grammar). */
 const GRAMMAR_CHARLIST = /^[a-z ]*$/;
 
 export function scanToken(state: LexerState): void {
@@ -71,7 +72,6 @@ export function scanToken(state: LexerState): void {
             ? "<space>"
             : ch;
 
-  // Build a tiny source excerpt for fast debugging.
   const src = state.source;
   const lineStart = Math.max(0, src.lastIndexOf("\n", state.current - 1) + 1);
   const nl = src.indexOf("\n", state.current);

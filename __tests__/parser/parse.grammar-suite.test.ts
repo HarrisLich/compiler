@@ -85,17 +85,13 @@ function assertProgram(program: Program): void {
 
 type Case = { name: string; source: string };
 
-// Note: these cases are intended to validate parse success + AST shape.
-// They do not validate runtime semantics (e.g. whether loops execute).
 const CASES: Case[] = [
-  // SECTION 1
   { name: "1.1 empty block", source: "{}$" },
   { name: "1.2 single print digit", source: "{ print(1) }$" },
   { name: "1.3 single print string", source: '{ print("hello") }$' },
   { name: "1.4 single print bool", source: "{ print(true) }$" },
   { name: "1.5 single var decl", source: "{ int a }$" },
 
-  // SECTION 2
   { name: "2.1 declare each type", source: "{ int a string b boolean c }$" },
   { name: "2.2 multiple int decls", source: "{ int a int b int c int d }$" },
   { name: "2.3 multiple string decls", source: "{ string a string b string c }$" },
@@ -105,7 +101,6 @@ const CASES: Case[] = [
     source: "{ int a boolean b string c int d string e boolean f }$",
   },
 
-  // SECTION 3
   { name: "3.1 assign digit", source: "{ int a a = 5 }$" },
   { name: "3.2 assign string", source: '{ string a a = "hello" }$' },
   { name: "3.3 assign true", source: "{ boolean a a = true }$" },
@@ -120,7 +115,6 @@ const CASES: Case[] = [
     source: "{ int a a = 1 a = 2 a = 3 a = 9 }$",
   },
 
-  // SECTION 4
   {
     name: "4.1 print each digit",
     source:
@@ -146,7 +140,6 @@ const CASES: Case[] = [
   { name: "4.10 print empty string", source: '{ print("") }$' },
   { name: "4.11 print string spaces", source: '{ print("the quick brown fox") }$' },
 
-  // SECTION 5
   { name: "5.1 single digit assign", source: "{ int a a = 0 }$" },
   { name: "5.2 digit + digit", source: "{ int a a = 3 + 4 print(a) }$" },
   { name: "5.3 chain addition", source: "{ int a a = 1 + 1 + 1 print(a) }$" },
@@ -154,7 +147,6 @@ const CASES: Case[] = [
   { name: "5.5 print chained expression", source: "{ print(9 + 1) }$" },
   { name: "5.6 digit added to id", source: "{ int a int b a = 5 b = 3 + a print(b) }$" },
 
-  // SECTION 6
   { name: "6.1 empty string", source: '{ string a a = "" }$' },
   { name: "6.2 single char string", source: '{ string a a = "z" print(a) }$' },
   { name: "6.3 multi-char string", source: '{ string a a = "hello" print(a) }$' },
@@ -168,7 +160,6 @@ const CASES: Case[] = [
     source: '{ string a string b a = "hi" b = "hi" print((a == b)) }$',
   },
 
-  // SECTION 7
   { name: "7.1 bool true", source: "{ boolean a a = true print(a) }$" },
   { name: "7.2 bool false", source: "{ boolean a a = false print(a) }$" },
   { name: "7.3 digit == digit", source: "{ boolean a a = (1 == 1) print(a) }$" },
@@ -179,7 +170,6 @@ const CASES: Case[] = [
   { name: "7.8 compare id to boolval", source: "{ boolean a a = true print((a == true)) }$" },
   { name: "7.9 deeply nested boolean expr", source: "{ boolean a a = ((1 == 1) == (2 != 3)) print(a) }$" },
 
-  // SECTION 8
   { name: "8.1 if true", source: '{ if true { print("yes") } }$' },
   { name: "8.2 if false", source: '{ if false { print("no") } }$' },
   { name: "8.3 if (1==1)", source: '{ if (1 == 1) { print("one equals one") } }$' },
@@ -213,7 +203,6 @@ const CASES: Case[] = [
   },
   { name: "8.12 if with nested BooleanExpr condition", source: '{ if ((1 == 1) == true) { print("complex condition passed") } }$' },
 
-  // SECTION 9
   { name: "9.1 while false", source: '{ while false { print("never") } }$' },
   { name: "9.2 while (1==2)", source: '{ while (1 == 2) { print("unreachable") } }$' },
   {
@@ -252,7 +241,6 @@ const CASES: Case[] = [
     source: '{ boolean g g = true while (g == true) { print("once") g = false } }$',
   },
 
-  // SECTION 10
   {
     name: "10.1 nested block inside outer",
     source: "{ int a a = 1 { int b b = 2 print(b) } print(a) }$",
@@ -295,7 +283,6 @@ const CASES: Case[] = [
     source: "{ int a a = 1 { a = 2 print(a) } print(a) }$",
   },
 
-  // SECTION 11
   {
     name: "11.1 declare assign print types",
     source:
@@ -363,7 +350,6 @@ const CASES: Case[] = [
   },
   { name: "11.15 print nested BooleanExpr result", source: "{ int a a = 3 print(((a == 3) == true)) }$" },
 
-  // SECTION 12
   { name: "12.1 empty block (comments-only in original)", source: "{ }$" },
   { name: "12.2 single char strings", source: '{ print("a") print("b") print("z") }$' },
   { name: "12.3 digit 0 edge", source: "{ int a a = 0 print(a) }$" },
@@ -395,7 +381,6 @@ const CASES: Case[] = [
     source: '{ int a int b a = 4 b = 4 if (a == b) { print("match") } }$',
   },
 
-  // SECTION 13 (comment handling is lexer-level; include real comments)
   { name: "13.1 comment before program", source: '/* this is a comment */ { print("after comment") }$' },
   {
     name: "13.2 comment inside block",

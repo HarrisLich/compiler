@@ -14,7 +14,6 @@ function mapToRecord<V>(m: Map<string, V>): Record<string, V> {
 export const bootstrap = () => {
     logger.info('[core:bootstrap] Starting Compiler');
 
-    // multiple scopes with multiple declarations (example source kept for docs)
     const source = `  {
         int a
         boolean b
@@ -44,11 +43,6 @@ export const bootstrap = () => {
 
 
 }$`;
-    // example with a scope error
-    // const source2 = '{ while (b == true) { int b } }$';
-    // example with a type error
-    // const source3 = '{ int a a = "1" print(a) }$';
-    // const source4 = `{ string a a = "A!" print(a) }$`;
     const tokens = scanTokens(source);
 
     for (const token of tokens) {
